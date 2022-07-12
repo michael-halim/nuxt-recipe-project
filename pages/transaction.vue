@@ -21,13 +21,15 @@
 import axios from "axios";
 export default {
   async fetch() {
-    const fetchData = await axios.get(
-      `https://6ea94281-1e3f-4004-af53-301c09084e22.mock.pstmn.io/transaction`
-    );
-    let tempTransactionList = fetchData.data.transactionList;
-    console.log(tempTransactionList);
+    const BASE_LINK =
+      "https://6da944a7-8028-4ad0-a7bd-351470a5016a.mock.pstmn.io";
+
+    const fetchData = await axios.get(`${BASE_LINK}/transaction`);
+
+    let tempTransactionList = fetchData.data.data;
+    // console.log(tempTransactionList);
     for (const data of tempTransactionList) {
-      console.log(data);
+      //   console.log(data);
       let totalPrice = 0;
       for (const tsc of data.transactionDetail) {
         totalPrice += tsc.price * tsc.qty;

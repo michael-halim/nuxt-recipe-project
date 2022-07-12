@@ -13,29 +13,31 @@
 import axios from "axios";
 export default {
   async fetch() {
-    const fetchData = await axios.get(
-      `https://6ea94281-1e3f-4004-af53-301c09084e22.mock.pstmn.io/recipe`
-    );
+    const BASE_LINK =
+      "https://6da944a7-8028-4ad0-a7bd-351470a5016a.mock.pstmn.io";
 
-    const fetchSizePriceImage = await axios.get(
-      `https://6ea94281-1e3f-4004-af53-301c09084e22.mock.pstmn.io/menu`
-    );
+    const fetchData = await axios.get(`${BASE_LINK}/recipe`);
 
-    const tempRecipeList = fetchData.data.recipeList;
-    const tempSizePriceImage = fetchSizePriceImage.data.menuList;
+    const fetchSizePriceImage = await axios.get(`${BASE_LINK}/menu`);
+
+    const tempRecipeList = fetchData.data.data;
+    const tempSizePriceImage = fetchSizePriceImage.data.data;
 
     for (const element of tempRecipeList) {
       element.ingredient = element.ingredient.split(",");
       for (const elementSizePriceImage of tempSizePriceImage) {
-        if (elementSizePriceImage.recipeID == element.ID) {
-          element["menuSizePriceList"] =
-            elementSizePriceImage.menuSizePriceList;
+        if (elementSizePriceImage.ID == element.ID) {
+          element["menuSizePriceList"] = elementSizePriceImage.sizeList;
+          break;
         }
       }
     }
     this.recipeList = tempRecipeList;
 
+    console.log("TEST");
     console.log(tempRecipeList);
+    console.log("RECIPE LIST");
+    console.log(tempRecipeList.menuSizePriceList[0]);
     // this.menuList = fetchData.data.completedRecipeList;
   },
   data() {

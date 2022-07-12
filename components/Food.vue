@@ -29,12 +29,12 @@
                     <div class="input-group mb-3">
                       <button
                         v-for="size in item.menuSizePriceList"
-                        :key="size.sizeID"
-                        @click="changeSize(item.ID, size.sizeID, item)"
+                        :key="size.size.ID"
+                        @click="changeSize(item.ID, size.size.ID, item)"
                         class="btn btn-outline-secondary btn-sm"
                         type="button"
                       >
-                        {{ size.sizeName }}
+                        {{ size.size.name }}
                       </button>
                     </div>
                   </div>
@@ -101,7 +101,8 @@ export default {
   props: ["options", "item", "selectedSize", "name"],
   methods: {
     changeSize(menuID, sizeID, item) {
-
+      console.log("ITEM");
+      console.log(item);
       if (menuID == item.ID) {
         console.log(item.menuSizePriceList);
         for (const sizePriceObject of item.menuSizePriceList) {
