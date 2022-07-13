@@ -1,9 +1,11 @@
 <template>
   <div class="container">
-    <div class="mt-3 text-right">
-      <NuxtLink to="/form"
-        ><button class="btn btn-success">Add New</button></NuxtLink
-      >
+    <div class="row justify-content-end">
+      <div class="col-3 m-3">
+        <NuxtLink to="/form"
+          ><button class="btn btn-success">Add New</button></NuxtLink
+        >
+      </div>
     </div>
     <Food v-for="(item, index) in recipeList" :key="index" :item="item" />
   </div>
@@ -14,7 +16,7 @@ import axios from "axios";
 export default {
   async fetch() {
     const BASE_LINK =
-      "https://6da944a7-8028-4ad0-a7bd-351470a5016a.mock.pstmn.io";
+      "https://9ebbb237-28df-45d9-a23d-66a0f8e360e6.mock.pstmn.io";
 
     const fetchData = await axios.get(`${BASE_LINK}/recipe`);
 
@@ -34,10 +36,6 @@ export default {
     }
     this.recipeList = tempRecipeList;
 
-    console.log("TEST");
-    console.log(tempRecipeList);
-    console.log("RECIPE LIST");
-    console.log(tempRecipeList.menuSizePriceList[0]);
     // this.menuList = fetchData.data.completedRecipeList;
   },
   data() {

@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar navbar-expand-lg bg-light">
     <div class="container-fluid">
-       <NuxtLink to="/" class="nav-link"> Navbar </NuxtLink>
+      <NuxtLink to="/" class="nav-link"> Navbar </NuxtLink>
       <button
         class="navbar-toggler"
         type="button"

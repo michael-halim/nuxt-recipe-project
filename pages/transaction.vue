@@ -22,7 +22,7 @@ import axios from "axios";
 export default {
   async fetch() {
     const BASE_LINK =
-      "https://6da944a7-8028-4ad0-a7bd-351470a5016a.mock.pstmn.io";
+      "https://9ebbb237-28df-45d9-a23d-66a0f8e360e6.mock.pstmn.io";
 
     const fetchData = await axios.get(`${BASE_LINK}/transaction`);
 

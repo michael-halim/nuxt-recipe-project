@@ -51,8 +51,8 @@
           />
         </div>
 
-        <button type="submit" variant="primary">Submit</button>
-        <button type="reset" variant="danger">Reset</button>
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="reset" class="btn btn-danger">Reset</button>
       </form>
       <div class="mt-3" header="Form Data Result">
         <pre class="m-0">{{ form }}</pre>
@@ -65,40 +65,17 @@
 import axios from "axios";
 export default {
   // Fetch a JSON data from backend
-  // async fetch() {
-  //   const fetchData = await axios.get(
-  //     `https://6b29a167-3f3e-45e8-83d9-043a5685490f.mock.pstmn.io/getMenuByRecipeID/${this.$route.params.foodID}`
-  //   );
-  //   // Get recipeName, recipeDescription, recipeImage, and all sizes
-  //   this.form.recipeName = fetchData.data.recipeName;
-  //   this.form.recipeDescription = fetchData.data.recipeDescription;
-  //   this.form.image = fetchData.data.recipeDescription;
-  //   const tempMenuList = Object.keys(fetchData.data.menuList);
-  //   const tempPrice = [];
-  //   const tempSizePriceForm = [];
-  //   for (const element of tempMenuList) {
-  //     tempPrice.push(fetchData.data.menuList[element].price);
-  //   }
-  //   console.log(tempPrice);
-  //   // const variantSizePrice = {
-  //   //   info: {
-  //   //     labelNameSize: "Size #" + 1,
-  //   //     placeholderSize: "Small/Medium/Large",
-  //   //     labelNamePrice: "Harga (Rp)",
-  //   //     placeholderPrice: "10",
-  //   //   },
-  //   //   dataForm: {
-  //   //     dataSize: "Super Large",
-  //   //     dataPrice: 10,
-  //   //   },
-  //   // };
-  //   // for (let index = 0; index < array.length; index++) {
-  //   //   const element = array[index];
-
-  //   // }
-  //   // // for(const in )
-  //   // this.form.sizePriceForm[0].dataForm = "";
-  // },
+  async fetch() {
+    const BASE_LINK =
+      "https://9ebbb237-28df-45d9-a23d-66a0f8e360e6.mock.pstmn.io";
+    const fetchData = await axios.get(
+      `${BASE_LINK}/recipe/${this.$route.params.foodID}/`
+    );
+    // Get recipeName, recipeDescription, recipeImage, and all sizes
+    this.form.recipeName = fetchData.data.name;
+    this.form.recipeDescription = fetchData.data.desc;
+    this.form.ingredientsList = fetchData.data.ingredient;
+  },
   data() {
     return {
       form: {

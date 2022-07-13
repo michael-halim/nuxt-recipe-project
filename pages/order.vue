@@ -6,17 +6,13 @@
           <!-- Option Menu -->
           <div class="m-3">
             <div class="form-floating">
-              <select
-                class="form-select"
-                id="floatingSelect"
-                aria-label="Floating label select example"
-              >
+              <select class="form-select">
                 <option selected>Open this select menu</option>
                 <option value="1">One</option>
                 <option value="2">Two</option>
                 <option value="3">Three</option>
               </select>
-              <label for="floatingSelect">Pilih Resep Menu</label>
+              <label>Pilih Resep Menu</label>
             </div>
           </div>
 
@@ -25,17 +21,13 @@
             <div class="col-6">
               <div class="m-3">
                 <div class="form-floating">
-                  <select
-                    class="form-select"
-                    id="floatingSelect"
-                    aria-label="Floating label select example"
-                  >
+                  <select class="form-select">
                     <option selected>Open this select menu</option>
                     <option value="1">One</option>
                     <option value="2">Two</option>
                     <option value="3">Three</option>
                   </select>
-                  <label for="floatingSelect">Pilih Resep Menu</label>
+                  <label>Pilih Size Menu</label>
                 </div>
               </div>
             </div>
@@ -45,13 +37,15 @@
               <div class="form-floating m-3">
                 <input
                   type="number"
+                  min="0"
                   class="form-control"
-                  id="floatingInput"
-                  placeholder="name@example.com"
+                  placeholder="10"
                 />
-                <label for="floatingInput">Pilih Quantity</label>
+                <label>Pilih Quantity</label>
               </div>
             </div>
+
+            <!-- Delete Button -->
             <div class="col-3">
               <div class="mt-4">
                 <button type="button" class="btn btn-danger w-40">
@@ -71,9 +65,15 @@
                 </button>
               </div>
             </div>
-            <!-- Delete Button -->
+          </div>
+          <div class="row m-3">
+            <div class="col-3">
+              <h5>Rp. 10.000</h5>
+            </div>
           </div>
         </div>
+
+        <!-- Preview Image -->
         <div class="col-4">
           <img
             src="https://images.tokopedia.net/img/cache/500-square/VqbcmM/2021/5/27/5b48f41c-fd76-4809-bee3-4f6cf623fe9e.jpg"
