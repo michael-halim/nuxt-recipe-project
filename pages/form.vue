@@ -66,15 +66,38 @@ import axios from "axios";
 export default {
   // Fetch a JSON data from backend
   async fetch() {
-    const BASE_LINK =
-      "https://9ebbb237-28df-45d9-a23d-66a0f8e360e6.mock.pstmn.io";
-    const fetchData = await axios.get(
-      `${BASE_LINK}/recipe/${this.$route.params.foodID}/`
-    );
-    // Get recipeName, recipeDescription, recipeImage, and all sizes
-    this.form.recipeName = fetchData.data.name;
-    this.form.recipeDescription = fetchData.data.desc;
-    this.form.ingredientsList = fetchData.data.ingredient;
+    if (this.$route.params.foodID !== undefined) {
+      const BASE_LINK =
+        "https://9ebbb237-28df-45d9-a23d-66a0f8e360e6.mock.pstmn.io";
+
+      const fetchData = await axios.get(
+        `${BASE_LINK}/menurecipe/${this.$route.params.foodID}`
+      );
+      console.log("ROUTE PARAMS");
+      console.log(this.$route.params.foodID);
+      console.log("LINK");
+      console.log(`${BASE_LINK}/menurecipe/${this.$route.params.foodID}/`);
+      // Get recipeName, recipeDescription, recipeImage, and all sizes
+      console.log(fetchData.data.data);
+      const fetchObject = fetchData.data.data;
+
+      this.form.recipeName = fetchObject.name;
+      this.form.recipeDescription = fetchObject.desc;
+      this.form.ingredientsList = fetchObject.ingredient;
+
+      const tempListSizePriceForm = [];
+
+      for (const sizeObject of fetchObject.sizeList) {
+        let tempSizePriceForm = {};
+        tempSizePriceForm["dataSize"] = sizeObject.size.name;
+        tempSizePriceForm["dataPrice"] = sizeObject.price;
+        tempSizePriceForm["dataImage"] = sizeObject.imgFileName;
+        tempListSizePriceForm.push(tempSizePriceForm);
+      }
+      console.log("TEMP SIZE PRICE FORM");
+      console.log(tempListSizePriceForm);
+      this.form.sizePriceForm = tempListSizePriceForm;
+    }
   },
   data() {
     return {
