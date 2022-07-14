@@ -1,7 +1,7 @@
 <template>
   <div class="container wrapper mt-5">
     <div class="m-4">
-      <form @submit="onSubmit" @reset="onReset" v-if="show" class="mt-2">
+      <form @submit="onSubmit" @reset="onReset" class="mt-2">
         <!-- Label dan Input Makanan -->
         <label for="recipeName" class="form-label pt-4">Nama Makanan</label>
         <div class="input-group mb-3">
@@ -9,6 +9,7 @@
             type="text"
             class="form-control"
             id="recipeName"
+            placeholder="Soto Banjar"
             v-model="form.recipeName"
           />
         </div>
@@ -21,6 +22,7 @@
             type="text"
             class="form-control"
             id="recipeDescription"
+            placeholder="Soto Bajar adalah makanan khas Banjar, duh"
             v-model="form.recipeDescription"
           />
         </div>
@@ -66,27 +68,25 @@ import axios from "axios";
 export default {
   // Fetch a JSON data from backend
   async fetch() {
+    // If request coming from edit button
     if (this.$route.params.foodID !== undefined) {
       const BASE_LINK =
         "https://9ebbb237-28df-45d9-a23d-66a0f8e360e6.mock.pstmn.io";
 
+      // FETCHING Data from API
       const fetchData = await axios.get(
         `${BASE_LINK}/menurecipe/${this.$route.params.foodID}`
       );
-      console.log("ROUTE PARAMS");
-      console.log(this.$route.params.foodID);
-      console.log("LINK");
-      console.log(`${BASE_LINK}/menurecipe/${this.$route.params.foodID}/`);
-      // Get recipeName, recipeDescription, recipeImage, and all sizes
-      console.log(fetchData.data.data);
+
+      // GET recipeName, recipeDescription, recipeImage, and all sizes
       const fetchObject = fetchData.data.data;
 
       this.form.recipeName = fetchObject.name;
       this.form.recipeDescription = fetchObject.desc;
       this.form.ingredientsList = fetchObject.ingredient;
 
+      // GET All Sizes from API
       const tempListSizePriceForm = [];
-
       for (const sizeObject of fetchObject.sizeList) {
         let tempSizePriceForm = {};
         tempSizePriceForm["dataSize"] = sizeObject.size.name;
@@ -94,8 +94,6 @@ export default {
         tempSizePriceForm["dataImage"] = sizeObject.imgFileName;
         tempListSizePriceForm.push(tempSizePriceForm);
       }
-      console.log("TEMP SIZE PRICE FORM");
-      console.log(tempListSizePriceForm);
       this.form.sizePriceForm = tempListSizePriceForm;
     }
   },
@@ -115,20 +113,21 @@ export default {
         ],
       },
       sizePriceCount: 1,
-
-      show: true,
     };
   },
   methods: {
     onSubmit(event) {
+      // IF Submit button is clicked
+
+      // TOKENIZE IngredientList by ,
       const ingredientsList = this.form.ingredientsList.split(",");
       let data = {
         id: Math.floor((1 + Math.random()) * 0x10000).toString(16),
         recipeName: this.form.recipeName,
         sizePriceForm: [
           {
-            dataSize: "Super Large",
-            dataPrice: 10,
+            dataSize: null,
+            dataPrice: null,
           },
         ],
         ingredientsList: ingredientsList,
@@ -146,6 +145,14 @@ export default {
       this.form.recipeName = "";
       this.form.recipeDescription = "";
       this.form.ingredientsList = "";
+      this.form.sizePriceForm = [
+        {
+          dataSize: null,
+          dataPrice: null,
+          dataImage: null,
+        },
+      ];
+      this.sizePriceCount = 1;
 
       // Trick to reset/clear native browser form validation state
       this.show = false;
@@ -154,8 +161,12 @@ export default {
       });
     },
     addSizePriceForm() {
-      this.form.sizePriceForm.push({ dataSize: null, dataPrice: null });
-      // console.log(this.form.sizePriceForm);
+      // ADD Dynamically Data, Price, and Image Form
+      this.form.sizePriceForm.push({
+        dataSize: null,
+        dataPrice: null,
+        dataImage: null,
+      });
     },
   },
 };
