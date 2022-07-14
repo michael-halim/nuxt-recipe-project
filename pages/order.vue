@@ -1,8 +1,16 @@
 <template>
   <div class="container">
+    <button class="btn btn-success mt-3" @click="addOrderHandler">
+      Add New
+    </button>
     <div class="row">
       <div class="col-8">
-        <OrderCard v-for="index in countOrder" :key="index" />
+        <OrderCard
+          v-for="(order, index) in orderList"
+          :key="index"
+          :orderID="order.id"
+          @deleteOrderHandler="deleteOrderHandler($event)"
+        />
       </div>
       <div class="col-4 wrapperSubTotal">
         <h3 class="m-3">Subtotal Rp. 10000</h3>
@@ -16,8 +24,22 @@
 export default {
   data() {
     return {
-      countOrder: 4,
+      orderCount: 1,
+      orderList: [{ id: 1 }],
     };
+  },
+  methods: {
+    addOrderHandler() {
+      this.orderCount++;
+      this.orderList.push({ id: this.orderCount });
+    },
+    deleteOrderHandler(orderID) {
+      this.orderCount--;
+      const tempOrderList = this.orderList.filter(
+        (order) => order.id !== orderID
+      );
+      this.orderList = [...tempOrderList];
+    },
   },
 };
 </script>

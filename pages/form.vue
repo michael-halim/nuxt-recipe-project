@@ -86,8 +86,7 @@ export default {
   async fetch() {
     // If request coming from edit button
     if (this.$route.params.foodID !== undefined) {
-      const BASE_LINK =
-        "https://9ebbb237-28df-45d9-a23d-66a0f8e360e6.mock.pstmn.io";
+      const BASE_LINK = this.$store.getters.getBaseLink();
 
       // FETCHING Data from API
       const fetchData = await axios.get(

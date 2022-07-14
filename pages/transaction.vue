@@ -8,11 +8,14 @@
           value="Add New Transaction"
         />
       </NuxtLink>
-      <Transaction
-        v-for="(transactionObject, index) in transactionData"
-        :key="index"
-        :transactionObject="transactionObject"
-      />
+
+      <div v-if="transactionData !== null">
+        <Transaction
+          v-for="(transactionObject, index) in transactionData"
+          :key="index"
+          :transactionObject="transactionObject"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -21,22 +24,22 @@
 import axios from "axios";
 export default {
   async fetch() {
-    const BASE_LINK =
-      "https://9ebbb237-28df-45d9-a23d-66a0f8e360e6.mock.pstmn.io";
+    // GET Base Link from store
+    const BASE_LINK = this.$store.getters.getBaseLink();
 
     // FETCH Data from API
     const fetchData = await axios.get(`${BASE_LINK}/transaction`);
 
     // CONSTRUCTS Total Price and Add it to JSON Data
     let tempTransactionList = fetchData.data.data;
+
     for (const data of tempTransactionList) {
       let totalPrice = 0;
       for (const tsc of data.transactionDetail) {
-        totalPrice += tsc.price * tsc.qty;
+        totalPrice += tsc.menu.price * tsc.qty;
       }
       data["totalPrice"] = totalPrice;
     }
-
     // CONNECT API to Frontend
     this.transactionData = tempTransactionList;
   },

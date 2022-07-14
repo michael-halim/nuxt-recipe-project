@@ -22,8 +22,8 @@
 import axios from "axios";
 export default {
   async fetch() {
-    const BASE_LINK =
-      "https://9ebbb237-28df-45d9-a23d-66a0f8e360e6.mock.pstmn.io";
+    // GET Base Link from store
+    const BASE_LINK = this.$store.getters.getBaseLink();
 
     // FETCH Recipe Data to Get All Menu
     const fetchData = await axios.get(`${BASE_LINK}/recipe`);

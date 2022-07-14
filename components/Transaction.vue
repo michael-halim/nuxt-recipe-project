@@ -33,14 +33,14 @@
                 v-for="detailTransactionObject in transactionObject.transactionDetail"
                 :key="detailTransactionObject.menuID"
               >
-                <td>{{ detailTransactionObject.recipe.name }}</td>
-                <td>{{ detailTransactionObject.size.name }}</td>
-                <td>Rp. {{ detailTransactionObject.price }}</td>
+                <td>{{ detailTransactionObject.menu.recipe.name }}</td>
+                <td>{{ detailTransactionObject.menu.size.name }}</td>
+                <td>Rp. {{ detailTransactionObject.menu.price }}</td>
                 <td>{{ detailTransactionObject.qty }}</td>
                 <td>
                   Rp.
                   {{
-                    detailTransactionObject.price * detailTransactionObject.qty
+                    detailTransactionObject.menu.price * detailTransactionObject.qty
                   }}
                 </td>
               </tr>

@@ -62,7 +62,11 @@
           <!-- Delete Button -->
           <div class="col-3">
             <div class="mt-4">
-              <button type="button" class="btn btn-danger w-40">
+              <button
+                type="button"
+                class="btn btn-danger w-40"
+                @click="onDelete(orderID)"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="20"
@@ -108,8 +112,7 @@
 import axios from "axios";
 export default {
   async fetch() {
-    const BASE_LINK =
-      "https://9ebbb237-28df-45d9-a23d-66a0f8e360e6.mock.pstmn.io";
+    const BASE_LINK = this.$store.getters.getBaseLink();
 
     const fetchData = await axios.get(`${BASE_LINK}/recipe`);
     const tempMenuOption = [];
@@ -133,6 +136,7 @@ export default {
       selectedMenuIndex: null,
     };
   },
+  props: ["orderID"],
   methods: {
     async onMenuChange($event) {
       // Event Handler for Changing Menu Option
@@ -142,18 +146,19 @@ export default {
       this.qty = undefined;
       this.selectedSizeIndex = null;
 
-      // Get Menu Index (Differ than menuID)
+      // GET Menu Index (Differ than menuID)
       this.selectedMenuIndex = $event.target.value;
 
-      const BASE_LINK =
-        "https://9ebbb237-28df-45d9-a23d-66a0f8e360e6.mock.pstmn.io";
+      // GET Base Link from store
+      const BASE_LINK = this.$store.getters.getBaseLink();
 
       // FETCH Data from backend to get sizeList
       let fetchData = await axios.get(
         `${BASE_LINK}/menurecipe/${this.menuOption[$event.target.value].ID}`
       );
-      fetchData = fetchData.data.data;
 
+      fetchData = fetchData.data.data;
+      
       // COMBINE Necessary Data
       const tempListSizeObject = [];
       for (const sizeObject of fetchData.sizeList) {
@@ -171,6 +176,16 @@ export default {
       // RESTART Preview Image when Choosing Size
       this.sizePreviewImage = null;
       // console.log(tempListSizeObject);
+    },
+    onDelete(orderID) {
+      this.sizeSelected = undefined;
+      this.sizePreviewImage = null;
+      this.menuOption = [];
+      this.sizeOption = [];
+      this.qty = null;
+      this.selectedSizeIndex = null;
+      this.selectedMenuIndex = null;
+      this.$emit("deleteOrderHandler", orderID);
     },
     changeSize($event) {
       // Event Handler for Changing Size Option

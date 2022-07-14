@@ -14,11 +14,11 @@
       </div>
       <div class="col-4">
         <div class="input-group mb-3">
-          <label class="input-group-text">Harga</label>
+          <label class="input-group-text">Harga (Rp. )</label>
           <input
             type="number"
             class="form-control"
-            placeholder="10000"
+            placeholder="10.000"
             v-model="size.dataPrice"
           />
         </div>

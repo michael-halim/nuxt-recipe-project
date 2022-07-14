@@ -101,11 +101,6 @@ export default {
 </script>
 
 <style scoped>
-.ingredients-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
 img {
   margin-bottom: 2rem;
   display: block;
