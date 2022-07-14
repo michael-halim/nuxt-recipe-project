@@ -2,8 +2,8 @@
   <div class="container wrapper mt-5">
     <div class="m-4">
       <form @submit="onSubmit" @reset="onReset" class="mt-2">
-        <!-- Label dan Input Makanan -->
         <div class="row">
+          <!-- Label dan Input Makanan -->
           <div class="col-8">
             <label for="recipeName" class="form-label pt-4">Nama Makanan</label>
             <div class="input-group mb-3">
@@ -16,6 +16,8 @@
               />
             </div>
           </div>
+
+          <!-- Label dan Input Foto Resep -->
           <div class="col-4">
             <div class="input-group mb-3 pt-2 mt-5">
               <label class="input-group-text">Foto</label>
@@ -24,6 +26,7 @@
           </div>
         </div>
 
+        <!-- Label dan Deskripsi Makanan -->
         <label for="recipeDescription" class="form-label"
           >Deskripsi Makanan</label
         >
@@ -37,6 +40,7 @@
           />
         </div>
 
+        <!-- Label dan Ukuran Harga Foto Makanan yang Dinamis -->
         <button
           type="button"
           class="btn btn-secondary"
@@ -47,11 +51,12 @@
         <SizePriceForm
           v-for="(formObject, index) in form.sizePriceForm"
           :key="index"
-          :formObject="formObject"
+          :size="formObject"
         />
 
+        <!-- Label dan Ingredient Makanan -->
         <label for="recipeIngredient" class="form-label"
-          >Deskripsi Makanan</label
+          >Ingredient Makanan</label
         >
         <div class="input-group mb-3">
           <input
@@ -59,10 +64,11 @@
             class="form-control"
             id="recipeIngredient"
             placeholder="Ingredients Makanan Dipisahkan koma"
-            v-model="form.ingredientsList"
+            v-model="form.ingredientList"
           />
         </div>
 
+        <!-- Button Submit dan Reset -->
         <button type="submit" class="btn btn-primary">Submit</button>
         <button type="reset" class="btn btn-danger">Reset</button>
       </form>
@@ -93,7 +99,7 @@ export default {
 
       this.form.recipeName = fetchObject.name;
       this.form.recipeDescription = fetchObject.desc;
-      this.form.ingredientsList = fetchObject.ingredient;
+      this.form.ingredientList = fetchObject.ingredient;
 
       // GET All Sizes from API
       const tempListSizePriceForm = [];
@@ -113,7 +119,7 @@ export default {
         recipeName: "",
         recipeDescription: "",
         image: null,
-        ingredientsList: "",
+        ingredientList: "",
         sizePriceForm: [
           {
             dataSize: null,
@@ -128,28 +134,13 @@ export default {
   methods: {
     onSubmit(event) {
       // IF Submit button is clicked
+      // PREVENT Reload Default Browser
+      event.preventDefault();
 
       // TOKENIZE IngredientList by ,
-      const ingredientsList = this.form.ingredientsList.split(",");
-
-      // CONSTRUCTS Data Sent to Backend
-      let data = {
-        id: Math.floor((1 + Math.random()) * 0x10000).toString(16),
-        recipeName: this.form.recipeName,
-        sizePriceForm: [
-          {
-            dataSize: null,
-            dataPrice: null,
-          },
-        ],
-        ingredientsList: ingredientsList,
-        sizePriceForm: this.sizePriceForm,
-      };
-
-      alert(JSON.stringify(data, null, 2));
-      event.preventDefault();
-      alert(JSON.stringify(data));
-      alert(this.form);
+      const ingredientList = this.form.ingredientList.split(",");
+      // alert(this.form);
+      // alert(this.form.recipe);
     },
     onReset(event) {
       // RESET All Input Form
@@ -160,7 +151,7 @@ export default {
       // Reset our form values
       this.form.recipeName = "";
       this.form.recipeDescription = "";
-      this.form.ingredientsList = "";
+      this.form.ingredientList = "";
       this.form.sizePriceForm = [
         {
           dataSize: null,

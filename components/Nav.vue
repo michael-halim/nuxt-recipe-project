@@ -2,29 +2,18 @@
   <nav class="navbar navbar-expand-lg bg-light">
     <div class="container-fluid">
       <NuxtLink to="/" class="nav-link"> Navbar </NuxtLink>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbarNav"
-        aria-controls="navbarNav"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
+      <div class="navbar-collapse">
         <ul class="navbar-nav">
-          <li class="nav-item">
+          <li>
             <NuxtLink to="/" class="nav-link"> Home </NuxtLink>
           </li>
-          <li class="nav-item">
+          <li>
             <NuxtLink to="/form" class="nav-link"> Form</NuxtLink>
           </li>
-          <li class="nav-item">
+          <li>
             <NuxtLink to="/transaction" class="nav-link"> Transaction</NuxtLink>
           </li>
-          <li class="nav-item">
+          <li>
             <NuxtLink to="/order" class="nav-link"> Order</NuxtLink>
           </li>
         </ul>

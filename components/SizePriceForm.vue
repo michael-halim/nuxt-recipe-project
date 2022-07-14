@@ -8,7 +8,7 @@
             type="text"
             class="form-control"
             placeholder="Small"
-            v-model="formObject.dataSize"
+            v-model="size.dataSize"
           />
         </div>
       </div>
@@ -19,7 +19,7 @@
             type="number"
             class="form-control"
             placeholder="10000"
-            v-model="formObject.dataPrice"
+            v-model="size.dataPrice"
           />
         </div>
       </div>
@@ -35,7 +35,7 @@
 
 <script>
 export default {
-  props: ["formObject"],
+  props: ["size"],
 };
 </script>
 

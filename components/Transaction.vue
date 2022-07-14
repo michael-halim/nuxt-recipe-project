@@ -11,13 +11,6 @@
           <div class="col-3">{{ transactionObject.ID }}</div>
           <div class="col-3">{{ transactionObject.timestamp }}</div>
           <div class="col-3">Rp. {{ transactionObject.totalPrice }}</div>
-          <!-- <div class="col-3">
-            <img
-              class="previewImage"
-              src="https://awsimages.detik.net.id/community/media/visual/2022/01/21/bakso-malang-gangsar-gurih-maknyus-bakso-malang-urat-rp-16-ribu-2_43.jpeg?w=700&q=90"
-              alt=""
-            />
-          </div> -->
         </button>
       </h2>
       <div
@@ -68,11 +61,7 @@
 <script>
 export default {
   props: ["transactionObject"],
-  methods: {
-    calculatePrice(price, qty) {
-      return parseInt(price) * parseInt(qty);
-    },
-  },
+  methods: {},
 };
 </script>
 

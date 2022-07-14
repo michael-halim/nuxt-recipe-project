@@ -206,9 +206,4 @@ img {
   border-radius: 16px;
   max-width: 200px;
 }
-/* .wrapper:hover {
-  box-shadow: -2px 0px 78px -35px rgba(0, 0, 0, 0.75);
-  transition: 0.3s ease-in-out;
-  padding: 1rem;
-} */
 </style>

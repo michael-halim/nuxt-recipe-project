@@ -1,5 +1,6 @@
 <template>
   <div class="container">
+    <!-- Add New Button Connects to Form Page -->
     <div class="row justify-content-end">
       <div class="col-3 m-3">
         <NuxtLink to="/form"
@@ -7,7 +8,13 @@
         >
       </div>
     </div>
-    <Food v-for="(item, index) in recipeList" :key="index" :item="item" />
+    <!-- Food Card with Information -->
+    <FoodCard
+      v-cloak
+      v-for="(item, index) in recipeList"
+      :key="index"
+      :item="item"
+    />
   </div>
 </template>
 
@@ -18,13 +25,17 @@ export default {
     const BASE_LINK =
       "https://9ebbb237-28df-45d9-a23d-66a0f8e360e6.mock.pstmn.io";
 
+    // FETCH Recipe Data to Get All Menu
     const fetchData = await axios.get(`${BASE_LINK}/recipe`);
 
+    // FETCH Menu to Get All Menu Sizes
     const fetchSizePriceImage = await axios.get(`${BASE_LINK}/menu`);
 
+    // DRILL Into Data and Put it to temp
     const tempRecipeList = fetchData.data.data;
     const tempSizePriceImage = fetchSizePriceImage.data.data;
 
+    // GET Ingredient List and All Menu Sizes
     for (const element of tempRecipeList) {
       element.ingredient = element.ingredient.split(",");
       for (const elementSizePriceImage of tempSizePriceImage) {
@@ -34,21 +45,15 @@ export default {
         }
       }
     }
+    // Connect API to Frontend
     this.recipeList = tempRecipeList;
   },
   data() {
     return {
-      selectedSize: "small",
-      selectedId: 1,
       recipeList: [],
     };
   },
-  methods: {
-    changeSelected(data) {
-      console.log(data[0]);
-      console.log(data[1]);
-    },
-  },
+  methods: {},
 };
 </script>
 
@@ -62,5 +67,8 @@ img {
 }
 .card-body {
   border: none;
+}
+[v-cloak] {
+  display: none;
 }
 </style>
