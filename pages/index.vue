@@ -35,8 +35,6 @@ export default {
       }
     }
     this.recipeList = tempRecipeList;
-
-    // this.menuList = fetchData.data.completedRecipeList;
   },
   data() {
     return {

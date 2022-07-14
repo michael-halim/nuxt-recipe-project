@@ -77,10 +77,6 @@ export default {
 </script>
 
 <style scoped>
-/* .accordion-button {
-  padding: 0;
-  margin: 0;
-} */
 .previewImage {
   max-width: 80px;
   margin: 1rem 0;

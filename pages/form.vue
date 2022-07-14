@@ -3,15 +3,25 @@
     <div class="m-4">
       <form @submit="onSubmit" @reset="onReset" class="mt-2">
         <!-- Label dan Input Makanan -->
-        <label for="recipeName" class="form-label pt-4">Nama Makanan</label>
-        <div class="input-group mb-3">
-          <input
-            type="text"
-            class="form-control"
-            id="recipeName"
-            placeholder="Soto Banjar"
-            v-model="form.recipeName"
-          />
+        <div class="row">
+          <div class="col-8">
+            <label for="recipeName" class="form-label pt-4">Nama Makanan</label>
+            <div class="input-group mb-3">
+              <input
+                type="text"
+                class="form-control"
+                id="recipeName"
+                placeholder="Soto Banjar"
+                v-model="form.recipeName"
+              />
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="input-group mb-3 pt-2 mt-5">
+              <label class="input-group-text">Foto</label>
+              <input type="file" class="form-control" />
+            </div>
+          </div>
         </div>
 
         <label for="recipeDescription" class="form-label"
@@ -121,6 +131,8 @@ export default {
 
       // TOKENIZE IngredientList by ,
       const ingredientsList = this.form.ingredientsList.split(",");
+
+      // CONSTRUCTS Data Sent to Backend
       let data = {
         id: Math.floor((1 + Math.random()) * 0x10000).toString(16),
         recipeName: this.form.recipeName,
@@ -140,7 +152,11 @@ export default {
       alert(this.form);
     },
     onReset(event) {
+      // RESET All Input Form
+
+      // PREVENT Default Browser Reload
       event.preventDefault();
+
       // Reset our form values
       this.form.recipeName = "";
       this.form.recipeDescription = "";
