@@ -5,13 +5,26 @@
         <!-- Option Menu -->
         <div class="m-3">
           <div class="form-floating">
-            <select class="form-select" @change="onMenuChange">
-              <option disabled selected hidden value="">Pilih Menu</option>
+            <select
+              class="form-select"
+              @change="onMenuChange"
+              v-model="order.selectedRecipeIndex"
+            >
               <option
-                v-for="(option, index) in menuOption"
-                :key="option.ID"
-                :value="index"
-                @click="sizeSelected = undefined"
+                v-if="order.selectedRecipe === null"
+                disabled
+                selected
+                hidden
+                value=""
+              >
+                Pilih Menu
+              </option>
+              <option
+                v-for="(option, index) in order.menuOption"
+                :key="index"
+                :value="option.name"
+                :data-menuOptionIndex="index"
+                @click="clickMenuOptionHandler"
               >
                 {{ option.name }}
               </option>
@@ -28,7 +41,7 @@
                 <select
                   class="form-select"
                   @change="changeSize"
-                  v-model="sizeSelected"
+                  v-model="order.selectedSize"
                 >
                   <option disabled selected hidden value="">Pilih Size</option>
                   <option
@@ -99,7 +112,7 @@
         class="col-4"
         v-if="sizePreviewImage == null && selectedMenuIndex !== null"
       >
-        <img :src="menuOption[selectedMenuIndex].imgFileName" alt="" />
+        <img :src="order.menuOption[selectedMenuIndex].imgFileName" alt="" />
       </div>
       <div class="col-4" v-else>
         <img :src="sizePreviewImage" alt="" />
@@ -111,54 +124,57 @@
 <script>
 import axios from "axios";
 export default {
-  async fetch() {
-    const BASE_LINK = this.$store.getters.getBaseLink();
-
-    const fetchData = await axios.get(`${BASE_LINK}/recipe`);
-    const tempMenuOption = [];
-    for (const fetchObject of fetchData.data.data) {
-      let tempData = {};
-      tempData["ID"] = fetchObject.ID;
-      tempData["name"] = fetchObject.name;
-      tempData["imgFileName"] = fetchObject.imgFileName;
-      tempMenuOption.push(tempData);
-    }
-    this.menuOption = tempMenuOption;
-  },
   data() {
     return {
-      sizeSelected: undefined,
+      sizeSelected: null,
       sizePreviewImage: null,
-      menuOption: [],
       sizeOption: [],
       qty: null,
       selectedSizeIndex: null,
       selectedMenuIndex: null,
     };
   },
-  props: ["orderID"],
+  props: ["orderID", "menuOption", "menuIndex", "order"],
   methods: {
-    async onMenuChange($event) {
+    async onMenuChange(event) {
       // Event Handler for Changing Menu Option
-
+      // console.log("Event Target");
+      // console.log(event.target);
+      // console.log(
+      //   event.target
+      //     .querySelector(
+      //       "option[value='" + this.$props.order.selectedRecipeIndex + "']"
+      //     )
+      //     .getAttribute("data-menuOptionIndex")
+      // );
       // RESET Size, Qty, and Price
-      this.sizeSelected = undefined;
-      this.qty = undefined;
+      this.sizeSelected = null;
+      this.qty = null;
       this.selectedSizeIndex = null;
 
       // GET Menu Index (Differ than menuID)
-      this.selectedMenuIndex = $event.target.value;
+      //TODO: FIND ANOTHER WAY TO GET VMODEL WORKING IN MENU OPTION
+      this.selectedMenuIndex = event.target
+        .querySelector(
+          "option[value='" + this.$props.order.selectedRecipeIndex + "']"
+        )
+        .getAttribute("data-menuOptionIndex");
+
+      console.log("SELECTED MENU INDEX");
+      console.log(this.selectedMenuIndex);
 
       // GET Base Link from store
       const BASE_LINK = this.$store.getters.getBaseLink();
 
       // FETCH Data from backend to get sizeList
       let fetchData = await axios.get(
-        `${BASE_LINK}/menurecipe/${this.menuOption[$event.target.value].ID}`
+        `${BASE_LINK}/menurecipe/${
+          this.$props.order.menuOption[this.selectedMenuIndex].ID
+        }`
       );
-
       fetchData = fetchData.data.data;
-
+      // console.log("FETCH DATA");
+      // console.log(fetchData);
       // COMBINE Necessary Data
       const tempListSizeObject = [];
       for (const sizeObject of fetchData.sizeList) {
@@ -168,36 +184,52 @@ export default {
         tempSizeObject["imgFileName"] = sizeObject.imgFileName;
         tempSizeObject["sizeID"] = sizeObject.size.ID;
         tempListSizeObject.push(tempSizeObject);
+
+        // Update Props Selected Price, Size, Image, and Size ID
+        // this.$props.order.selectedPrice = sizeObject.price;
+        // this.$props.order.selectedSize = sizeObject.size.name;
+        // this.$props.order.selectedImgFileName = sizeObject.imgFileName;
+        // this.$props.order.selectedSizeID = sizeObject.size.ID;
       }
+      // Update Props Selected Recipe
+      // this.$props.selectedIndex = $event.target.value;
+      // this.$props.order.selectedRecipe =
+      //   this.$props.order.menuOption[$event.target.value].name;
 
       // SAVE Size Option
       this.sizeOption = tempListSizeObject;
-
       // RESTART Preview Image when Choosing Size
       this.sizePreviewImage = null;
       // console.log(tempListSizeObject);
     },
+    clickMenuOptionHandler(event) {
+      alert();
+      this.selectedMenuIndex = event.target.getAttribute(
+        "data-menuOptionIndex"
+      );
+      console.log("SELECTED MENU INDEX");
+      console.log(this.selectedMenuIndex);
+    },
     onDelete(orderID) {
-      this.sizeSelected = undefined;
-      this.sizePreviewImage = null;
-      this.menuOption = [];
-      this.sizeOption = [];
-      this.qty = null;
-      this.selectedSizeIndex = null;
-      this.selectedMenuIndex = null;
-      this.$emit("deleteOrderHandler", orderID);
+      // Update Props Selected Qty
+      // this.$props.order.selectedQty = this.qty;
+      this.$emit("deleteOrderHandler", this.$props.order);
+
+      // this.sizeSelected = null;
+      // this.sizePreviewImage = null;
+      // this.sizeOption = [];
+      // this.selectedSizeIndex = null;
+      // this.selectedMenuIndex = null;
+      // this.qty = null;
     },
     changeSize($event) {
       // Event Handler for Changing Size Option
-
-      this.selectedSizeIndex = $event.target.value;
-
-      // SET Specific Image when Choosing Size
-      this.sizePreviewImage =
-        this.sizeOption[this.selectedSizeIndex].imgFileName;
-
-      // SET Qty to 1 whenever Choose Size
-      this.qty = 1;
+      // this.selectedSizeIndex = $event.target.value;
+      // // SET Specific Image when Choosing Size
+      // this.sizePreviewImage =
+      //   this.sizeOption[this.selectedSizeIndex].imgFileName;
+      // // SET Qty to 1 whenever Choose Size
+      // this.qty = 1;
     },
     formatNumber(x) {
       // FORMAT number . every 3 digit from behind

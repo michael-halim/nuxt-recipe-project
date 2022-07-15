@@ -13,6 +13,7 @@
                 id="recipeName"
                 placeholder="Soto Banjar"
                 v-model="form.recipeName"
+                required
               />
             </div>
           </div>
@@ -21,7 +22,13 @@
           <div class="col-4">
             <div class="input-group mb-3 pt-2 mt-5">
               <label class="input-group-text">Foto</label>
-              <input type="file" class="form-control" />
+              <input
+                type="file"
+                class="form-control"
+                ref="recipeImageFiles"
+                @change="recipeImageHandler($event)"
+                required
+              />
             </div>
           </div>
         </div>
@@ -37,6 +44,7 @@
             id="recipeDescription"
             placeholder="Soto Bajar adalah makanan khas Banjar, duh"
             v-model="form.recipeDescription"
+            required
           />
         </div>
 
@@ -52,6 +60,8 @@
           v-for="(formObject, index) in form.sizePriceForm"
           :key="index"
           :size="formObject"
+          :formIndex="index"
+          @sizePriceFormImageHandler="sizePriceFormImageHandler"
         />
 
         <!-- Label dan Ingredient Makanan -->
@@ -65,6 +75,7 @@
             id="recipeIngredient"
             placeholder="Ingredients Makanan Dipisahkan koma"
             v-model="form.ingredientList"
+            required
           />
         </div>
 
@@ -115,15 +126,21 @@ export default {
   data() {
     return {
       form: {
-        recipeName: "",
-        recipeDescription: "",
-        image: null,
+        recipeName: null,
+        recipeDescription: null,
+        image: {
+          imgFileName: null,
+          pic: null,
+        },
         ingredientList: "",
         sizePriceForm: [
           {
             dataSize: null,
             dataPrice: null,
-            dataImage: null,
+            dataImage: {
+              imgFileName: null,
+              pic: null,
+            },
           },
         ],
       },
@@ -138,8 +155,29 @@ export default {
 
       // TOKENIZE IngredientList by ,
       const ingredientList = this.form.ingredientList.split(",");
+      console.log(this.form);
+
       // alert(this.form);
       // alert(this.form.recipe);
+    },
+    readRecord(file) {
+      return new Promise(function (resolve, reject) {
+        let reader = new FileReader();
+        reader.onload = function (event) {
+          resolve(reader.result);
+        };
+        reader.readAsDataURL(file);
+      });
+    },
+    async recipeImageHandler(event) {
+      let file = this.$refs.recipeImageFiles.files[0];
+      let base64 = await this.readRecord(file);
+      this.form.image.imgFileName = file.name;
+      this.form.image.pic = this.formatBase64(base64);
+    },
+    sizePriceFormImageHandler({ index, fileInfo, base64 }) {
+      this.form.sizePriceForm[index].dataImage.imgFileName = fileInfo.name;
+      this.form.sizePriceForm[index].dataImage.pic = this.formatBase64(base64);
     },
     onReset(event) {
       // RESET All Input Form
@@ -148,14 +186,22 @@ export default {
       event.preventDefault();
 
       // Reset our form values
-      this.form.recipeName = "";
-      this.form.recipeDescription = "";
-      this.form.ingredientList = "";
+
+      this.form.recipeName = null;
+      this.form.recipeDescription = null;
+      this.form.ingredientList = null;
+      this.form.image = {
+        imgFileName: null,
+        pic: null,
+      };
       this.form.sizePriceForm = [
         {
           dataSize: null,
           dataPrice: null,
-          dataImage: null,
+          dataImage: {
+            imgFileName: null,
+            pic: null,
+          },
         },
       ];
       this.sizePriceCount = 1;
@@ -166,12 +212,18 @@ export default {
         this.show = true;
       });
     },
+    formatBase64(str) {
+      return str.replace(/^data:image\/[a-z]+;base64,/, "");
+    },
     addSizePriceForm() {
       // ADD Dynamically Data, Price, and Image Form
       this.form.sizePriceForm.push({
         dataSize: null,
         dataPrice: null,
-        dataImage: null,
+        dataImage: {
+          imgFileName: null,
+          pic: null,
+        },
       });
     },
   },
