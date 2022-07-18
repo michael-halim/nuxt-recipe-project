@@ -5,13 +5,26 @@
         <!-- Option Menu -->
         <div class="m-3">
           <div class="form-floating">
-            <select class="form-select" @change="onMenuChange">
-              <option disabled selected hidden value="">Pilih Menu</option>
+            <select
+              class="form-select"
+              @change="onMenuChange"
+              v-model="order.selectedRecipeID"
+            >
               <option
-                v-for="(option, index) in menuOption"
-                :key="option.ID"
-                :value="index"
-                @click="sizeSelected = undefined"
+                v-if="order.selectedRecipe === null"
+                disabled
+                selected
+                hidden
+                value=""
+              >
+                Pilih Menu
+              </option>
+              <option
+                v-for="(option, index) in order.menuOption"
+                :key="index"
+                :value="option.ID"
+                :data-menuOptionIndex="index"
+                :data-menuOptionID="option.ID"
               >
                 {{ option.name }}
               </option>
@@ -28,14 +41,15 @@
                 <select
                   class="form-select"
                   @change="changeSize"
-                  v-model="sizeSelected"
+                  v-model="order.selectedSizeID"
                 >
                   <option disabled selected hidden value="">Pilih Size</option>
                   <option
                     v-for="(option, index) in sizeOption"
                     :key="option.sizeID"
-                    :value="index"
-                    @click="sizeSelected = option.size"
+                    :value="option.sizeID"
+                    :data-sizeOptionIndex="index"
+                    :data-sizeOptionID="option.sizeID"
                   >
                     {{ option.size }}
                   </option>
@@ -53,7 +67,7 @@
                 min="1"
                 class="form-control"
                 placeholder="10"
-                v-model="qty"
+                v-model="order.selectedQty"
               />
               <label>Quantity</label>
             </div>
@@ -65,7 +79,7 @@
               <button
                 type="button"
                 class="btn btn-danger w-40"
-                @click="onDelete(orderID)"
+                @click="onDelete"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -85,23 +99,30 @@
           </div>
         </div>
         <div class="row m-3">
-          <div class="col-3" v-if="selectedSizeIndex !== null">
+          <div
+            class="col-3"
+            v-if="order.selectedPrice !== null && order.selectedQty !== null"
+          >
             <h5>
               Rp.
-              {{ formatNumber(sizeOption[selectedSizeIndex].price * qty) }}
+              {{
+                formatNumber(
+                  this.$props.order.selectedPrice *
+                    this.$props.order.selectedQty
+                )
+              }}
             </h5>
+          </div>
+          <div class="col-3" v-else>
+            <h5></h5>
           </div>
         </div>
       </div>
-
       <!-- Preview Image -->
-      <div
-        class="col-4"
-        v-if="sizePreviewImage == null && selectedMenuIndex !== null"
-      >
-        <img :src="menuOption[selectedMenuIndex].imgFileName" alt="" />
+      <div class="col-4" v-if="order.selectedImgFileName !== null">
+        <img :src="order.selectedImgFileName" alt="" />
       </div>
-      <div class="col-4" v-else>
+      <div class="col-4" v-else-if="sizePreviewImage !== null">
         <img :src="sizePreviewImage" alt="" />
       </div>
     </div>
@@ -111,53 +132,52 @@
 <script>
 import axios from "axios";
 export default {
-  async fetch() {
-    const BASE_LINK = this.$store.getters.getBaseLink();
-
-    const fetchData = await axios.get(`${BASE_LINK}/recipe`);
-    const tempMenuOption = [];
-    for (const fetchObject of fetchData.data.data) {
-      let tempData = {};
-      tempData["ID"] = fetchObject.ID;
-      tempData["name"] = fetchObject.name;
-      tempData["imgFileName"] = fetchObject.imgFileName;
-      tempMenuOption.push(tempData);
-    }
-    this.menuOption = tempMenuOption;
-  },
   data() {
     return {
-      sizeSelected: undefined,
       sizePreviewImage: null,
-      menuOption: [],
       sizeOption: [],
-      qty: null,
-      selectedSizeIndex: null,
       selectedMenuIndex: null,
     };
   },
-  props: ["orderID"],
+  props: ["orderIndex", "order"],
   methods: {
-    async onMenuChange($event) {
+    async onMenuChange(event) {
       // Event Handler for Changing Menu Option
 
       // RESET Size, Qty, and Price
-      this.sizeSelected = undefined;
-      this.qty = undefined;
+      this.sizeSelected = null;
       this.selectedSizeIndex = null;
 
+      this.$props.order.selectedSize = null;
+      this.$props.order.selectedSizeID = null;
+      this.$props.order.selectedPrice = null;
+      this.$props.order.selectedQty = null;
+
+      // GET Recipe Name to Props
+      this.$props.order.selectedRecipeName = event.target
+        .querySelector(
+          "option[value='" + this.$props.order.selectedRecipeID + "']"
+        )
+        .innerHTML.trim();
+
       // GET Menu Index (Differ than menuID)
-      this.selectedMenuIndex = $event.target.value;
+      this.selectedMenuIndex = event.target
+        .querySelector(
+          "option[value='" + this.$props.order.selectedRecipeID + "']"
+        )
+        .getAttribute("data-menuOptionIndex");
 
       // GET Base Link from store
       const BASE_LINK = this.$store.getters.getBaseLink();
 
       // FETCH Data from backend to get sizeList
       let fetchData = await axios.get(
-        `${BASE_LINK}/menurecipe/${this.menuOption[$event.target.value].ID}`
+        `${BASE_LINK}/menurecipe/${this.$props.order.selectedRecipeID}`
       );
-
       fetchData = fetchData.data.data;
+
+      // GET Image URL to Props
+      this.$props.order.selectedImgFileName = fetchData.imgFileName;
 
       // COMBINE Necessary Data
       const tempListSizeObject = [];
@@ -175,29 +195,39 @@ export default {
 
       // RESTART Preview Image when Choosing Size
       this.sizePreviewImage = null;
-      // console.log(tempListSizeObject);
     },
-    onDelete(orderID) {
-      this.sizeSelected = undefined;
-      this.sizePreviewImage = null;
-      this.menuOption = [];
-      this.sizeOption = [];
-      this.qty = null;
-      this.selectedSizeIndex = null;
-      this.selectedMenuIndex = null;
-      this.$emit("deleteOrderHandler", orderID);
+    onDelete() {
+      this.$emit("deleteOrderHandler", {
+        propsOrder: this.$props.order,
+        orderIndex: this.$props.orderIndex,
+      });
     },
     changeSize($event) {
       // Event Handler for Changing Size Option
 
-      this.selectedSizeIndex = $event.target.value;
+      // GET Selected Size Index
+      this.selectedSizeIndex = $event.target
+        .querySelector(
+          "option[value='" + this.$props.order.selectedSizeID + "']"
+        )
+        .getAttribute("data-sizeOptionIndex");
+
+      // Update Props Selected Size, Price and Image
+      this.$props.order.selectedSize =
+        this.sizeOption[this.selectedSizeIndex].size;
+
+      this.$props.order.selectedPrice =
+        this.sizeOption[this.selectedSizeIndex].price;
+
+      this.$props.order.selectedImgFileName =
+        this.sizeOption[this.selectedSizeIndex].imgFileName;
 
       // SET Specific Image when Choosing Size
       this.sizePreviewImage =
         this.sizeOption[this.selectedSizeIndex].imgFileName;
 
       // SET Qty to 1 whenever Choose Size
-      this.qty = 1;
+      this.$props.order.selectedQty = 1;
     },
     formatNumber(x) {
       // FORMAT number . every 3 digit from behind
