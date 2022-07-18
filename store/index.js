@@ -1,5 +1,5 @@
 export const getters = {
   getBaseLink: () => () => {
-    return "https://ae1360a7-1cf0-458e-8b35-0afa1f4c1a85.mock.pstmn.io";
+    return "https://633a-158-140-171-105.ap.ngrok.io";
   },
 };
