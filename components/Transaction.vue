@@ -10,7 +10,10 @@
         >
           <div class="col-3">{{ transactionObject.ID }}</div>
           <div class="col-3">{{ transactionObject.timestamp }}</div>
-          <div class="col-3">Rp. {{ transactionObject.totalPrice }}</div>
+          <div class="col-3">
+            Rp.
+            {{ this.$store.getters.formatNumber(transactionObject.totalPrice) }}
+          </div>
         </button>
       </h2>
       <div
@@ -40,7 +43,8 @@
                 <td>
                   Rp.
                   {{
-                    detailTransactionObject.menu.price * detailTransactionObject.qty
+                    detailTransactionObject.menu.price *
+                    detailTransactionObject.qty
                   }}
                 </td>
               </tr>

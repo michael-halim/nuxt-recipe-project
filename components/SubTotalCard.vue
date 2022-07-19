@@ -1,19 +1,22 @@
 <template>
   <div class="col-4 wrapperSubTotal">
-    <h3 class="m-3">Subtotal Rp. {{ formatNumber(subTotal) }}</h3>
-    <button type="button" class="btn btn-success m-3">Checkout</button>
+    <h3 class="m-3">
+      Subtotal Rp. {{ this.$store.getters.formatNumber(subTotal) }}
+    </h3>
+    <button
+      type="button"
+      class="btn btn-success m-3"
+      @click="$emit('checkoutHandler')"
+    >
+      Checkout
+    </button>
   </div>
 </template>
 
 <script>
 export default {
   props: ["subTotal"],
-  methods: {
-    formatNumber(x) {
-      // FORMAT number . every 3 digit from behind
-      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    },
-  },
+  methods: {},
 };
 </script>
 
@@ -21,7 +24,7 @@ export default {
 .wrapperSubTotal {
   right: 3rem;
   position: fixed;
-  margin-top: 3rem;
+  margin-top: 5rem;
   border-radius: 16px;
   box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
   cursor: pointer;

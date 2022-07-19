@@ -4,7 +4,7 @@
       <form @submit="onSubmit" @reset="onReset" class="mt-2">
         <div class="row">
           <!-- Label dan Input Makanan -->
-          <div class="col-8">
+          <div class="col-6">
             <label for="recipeName" class="form-label pt-4">Nama Makanan</label>
             <div class="input-group mb-3">
               <input
@@ -13,7 +13,6 @@
                 id="recipeName"
                 placeholder="Soto Banjar"
                 v-model="form.recipeName"
-                required
               />
             </div>
           </div>
@@ -27,9 +26,11 @@
                 class="form-control"
                 ref="recipeImageFiles"
                 @change="recipeImageHandler($event)"
-                required
               />
             </div>
+          </div>
+          <div class="col-2 mt-5">
+            <img class="previewImage" :src="form.image.imgURL" alt="" />
           </div>
         </div>
 
@@ -44,7 +45,6 @@
             id="recipeDescription"
             placeholder="Soto Bajar adalah makanan khas Banjar, duh"
             v-model="form.recipeDescription"
-            required
           />
         </div>
 
@@ -75,7 +75,6 @@
             id="recipeIngredient"
             placeholder="Ingredients Makanan Dipisahkan koma"
             v-model="form.ingredientList"
-            required
           />
         </div>
 
@@ -110,34 +109,49 @@ export default {
       this.form.recipeName = fetchObject.name;
       this.form.recipeDescription = fetchObject.desc;
       this.form.ingredientList = fetchObject.ingredient;
+      this.form.image.imgURL = fetchObject.imgFileName;
+      this.form.recipeID = fetchObject.ID;
 
-      // GET All Sizes from API
+      // GET All Sizes and Prices from API
       const tempListSizePriceForm = [];
       for (const sizeObject of fetchObject.sizeList) {
         let tempSizePriceForm = {};
         tempSizePriceForm["dataSize"] = sizeObject.size.name;
         tempSizePriceForm["dataPrice"] = sizeObject.price;
-        tempSizePriceForm["dataImage"] = sizeObject.imgFileName;
+        tempSizePriceForm["dataImage"] = {
+          imgURL: sizeObject.imgFileName,
+          imgFileName: null,
+          pic: null,
+        };
+        tempSizePriceForm["menuID"] = sizeObject.ID;
+        tempSizePriceForm["sizeID"] = sizeObject.sizeID;
         tempListSizePriceForm.push(tempSizePriceForm);
       }
       this.form.sizePriceForm = tempListSizePriceForm;
+
+      // console.log(this.form.sizePriceForm);
     }
   },
   data() {
     return {
       form: {
         recipeName: null,
+        recipeID: null,
         recipeDescription: null,
         image: {
+          imgURL: null,
           imgFileName: null,
           pic: null,
         },
         ingredientList: "",
         sizePriceForm: [
           {
+            menuID: null,
+            sizeID: null,
             dataSize: null,
             dataPrice: null,
             dataImage: {
+              imgURL: null,
               imgFileName: null,
               pic: null,
             },
@@ -148,17 +162,94 @@ export default {
     };
   },
   methods: {
-    onSubmit(event) {
-      // IF Submit button is clicked
+    async onSubmit(event) {
       // PREVENT Reload Default Browser
       event.preventDefault();
 
-      // TOKENIZE IngredientList by ,
-      const ingredientList = this.form.ingredientList.split(",");
-      console.log(this.form);
+      // GET Base Link
+      const BASE_LINK = this.$store.getters.getBaseLink();
 
-      // alert(this.form);
-      // alert(this.form.recipe);
+      // IF Edit Go Here Else It's Created
+      // FIXME: if Edited take a long time to change !!
+      if (this.$route.params.foodID !== undefined) {
+        for (const sizePriceObject of this.form.sizePriceForm) {
+          // console.log(this.form.recipeID);
+          // console.log(sizePriceObject.sizeID);
+          // console.log(sizePriceObject.dataPrice);
+          // console.log(sizePriceObject.dataImage.imgFileName);
+          // console.log(sizePriceObject.dataImage.pic);
+          await axios
+            .put(`${BASE_LINK}/menu/${sizePriceObject.menuID}`, {
+              recipeID: parseInt(this.form.recipeID),
+              sizeID: parseInt(sizePriceObject.sizeID),
+              price: sizePriceObject.dataPrice,
+              imgFileName: sizePriceObject.dataImage.imgFileName,
+              pic: sizePriceObject.dataImage.pic,
+            })
+            .then((res) => {
+              console.log("RESPONSE UPDATE");
+              console.log(res);
+            })
+            .catch((error) => {
+              console.log("ERROR");
+              console.log(error);
+            });
+        }
+      } else {
+        // POST Request Size
+        const sizeID = [];
+        for (const sizePriceObject of this.form.sizePriceForm) {
+          await axios
+            .post(`${BASE_LINK}/size`, {
+              name: sizePriceObject.dataSize,
+            })
+            .then((res) => {
+              sizeID.push(res.data.data.ID);
+            })
+            .catch((error) => {
+              console.log("ERROR");
+              console.log(error);
+            });
+        }
+
+        // POST Recipe
+        let recipeID = null;
+        await axios
+          .post(`${BASE_LINK}/recipe`, {
+            name: this.form.recipeName,
+            ingredient: this.form.ingredientList,
+            desc: this.form.recipeDescription,
+            imgFileName: this.form.image.imgFileName,
+            pic: this.form.image.pic,
+          })
+          .then((res) => {
+            recipeID = res.data.data.ID;
+          })
+          .catch((error) => {
+            console.log("ERROR");
+            console.log(error);
+          });
+
+        // POST Menu
+        for (let i = 0; i < this.form.sizePriceForm.length; i++) {
+          await axios
+            .post(`${BASE_LINK}/menu`, {
+              recipeID: recipeID,
+              sizeID: parseInt(sizeID[i]),
+              price: parseInt(this.form.sizePriceForm[i].dataPrice),
+              imgFileName: this.form.sizePriceForm[i].dataImage.imgFileName,
+              pic: this.form.sizePriceForm[i].dataImage.pic,
+            })
+            .then((res) => {})
+            .catch((error) => {
+              console.log("ERROR");
+              console.log(error);
+            });
+        }
+      }
+
+      console.log("FORM");
+      console.log(this.form);
     },
     readRecord(file) {
       return new Promise(function (resolve, reject) {
@@ -171,7 +262,14 @@ export default {
     },
     async recipeImageHandler(event) {
       let file = this.$refs.recipeImageFiles.files[0];
+
+      // PREVIEW UPLOADED URL
+      this.form.image.imgURL = URL.createObjectURL(file);
+
+      // GET Base64 from Image File
       let base64 = await this.readRecord(file);
+
+      // SET Image Name and Base 64
       this.form.image.imgFileName = file.name;
       this.form.image.pic = this.formatBase64(base64);
     },
@@ -180,25 +278,27 @@ export default {
       this.form.sizePriceForm[index].dataImage.pic = this.formatBase64(base64);
     },
     onReset(event) {
-      // RESET All Input Form
-
       // PREVENT Default Browser Reload
       event.preventDefault();
 
       // Reset our form values
-
       this.form.recipeName = null;
+      this.form.recipeID = null;
       this.form.recipeDescription = null;
-      this.form.ingredientList = null;
+      this.form.ingredientList = "";
       this.form.image = {
+        imgURL: null,
         imgFileName: null,
         pic: null,
       };
       this.form.sizePriceForm = [
         {
+          menuID: null,
+          sizeID: null,
           dataSize: null,
           dataPrice: null,
           dataImage: {
+            imgURL: null,
             imgFileName: null,
             pic: null,
           },
@@ -218,9 +318,12 @@ export default {
     addSizePriceForm() {
       // ADD Dynamically Data, Price, and Image Form
       this.form.sizePriceForm.push({
+        menuID: null,
+        sizeID: null,
         dataSize: null,
         dataPrice: null,
         dataImage: {
+          imgURL: null,
           imgFileName: null,
           pic: null,
         },
@@ -230,6 +333,9 @@ export default {
 };
 </script>
 <style scoped>
+.previewImage {
+  max-width: 100px;
+}
 .wrapper {
   border-radius: 16px;
   box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;

@@ -20,7 +20,7 @@
                 Pilih Menu
               </option>
               <option
-                v-for="(option, index) in order.menuOption"
+                v-for="(option, index) in menuOption"
                 :key="index"
                 :value="option.ID"
                 :data-menuOptionIndex="index"
@@ -106,7 +106,7 @@
             <h5>
               Rp.
               {{
-                formatNumber(
+                this.$store.getters.formatNumber(
                   this.$props.order.selectedPrice *
                     this.$props.order.selectedQty
                 )
@@ -139,7 +139,7 @@ export default {
       selectedMenuIndex: null,
     };
   },
-  props: ["orderIndex", "order"],
+  props: ["orderIndex", "order", "menuOption"],
   methods: {
     async onMenuChange(event) {
       // Event Handler for Changing Menu Option
@@ -152,6 +152,7 @@ export default {
       this.$props.order.selectedSizeID = null;
       this.$props.order.selectedPrice = null;
       this.$props.order.selectedQty = null;
+      this.$props.order.selectedMenuID = null;
 
       // GET Recipe Name to Props
       this.$props.order.selectedRecipeName = event.target
@@ -187,6 +188,7 @@ export default {
         tempSizeObject["size"] = sizeObject.size.name;
         tempSizeObject["imgFileName"] = sizeObject.imgFileName;
         tempSizeObject["sizeID"] = sizeObject.size.ID;
+        tempSizeObject["menuID"] = sizeObject.ID;
         tempListSizeObject.push(tempSizeObject);
       }
 
@@ -212,7 +214,7 @@ export default {
         )
         .getAttribute("data-sizeOptionIndex");
 
-      // Update Props Selected Size, Price and Image
+      // Update Props Selected Size, Price, menuID, and Image
       this.$props.order.selectedSize =
         this.sizeOption[this.selectedSizeIndex].size;
 
@@ -222,16 +224,15 @@ export default {
       this.$props.order.selectedImgFileName =
         this.sizeOption[this.selectedSizeIndex].imgFileName;
 
+      this.$props.order.selectedMenuID =
+        this.sizeOption[this.selectedSizeIndex].menuID;
+
       // SET Specific Image when Choosing Size
       this.sizePreviewImage =
         this.sizeOption[this.selectedSizeIndex].imgFileName;
 
       // SET Qty to 1 whenever Choose Size
       this.$props.order.selectedQty = 1;
-    },
-    formatNumber(x) {
-      // FORMAT number . every 3 digit from behind
-      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     },
   },
 };

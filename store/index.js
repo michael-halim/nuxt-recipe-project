@@ -1,5 +1,9 @@
 export const getters = {
   getBaseLink: () => () => {
-    return "https://633a-158-140-171-105.ap.ngrok.io";
+    return "http://192.168.1.12:9000";
+  },
+  formatNumber: () => (x) => {
+    // Function to Format Number to separate number with 3 digits
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   },
 };

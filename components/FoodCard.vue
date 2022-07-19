@@ -37,10 +37,14 @@
                     <h5>
                       Rp.
                       <span v-if="this.price != null">
-                        {{ formatNumber(this.price) }}
+                        {{ this.$store.getters.formatNumber(this.price) }}
                       </span>
                       <span v-else>
-                        {{ formatNumber(item.menuSizePriceList[0].price) }}
+                        {{
+                          this.$store.getters.formatNumber(
+                            item.menuSizePriceList[0].price
+                          )
+                        }}
                       </span>
                     </h5>
                   </div>
@@ -91,10 +95,6 @@ export default {
           }
         }
       }
-    },
-    formatNumber(x) {
-      // Function to Format Number to separate number with 3 digits
-      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     },
   },
 };
