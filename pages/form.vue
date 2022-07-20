@@ -170,14 +170,8 @@ export default {
       const BASE_LINK = this.$store.getters.getBaseLink();
 
       // IF Edit Go Here Else It's Created
-      // FIXME: if Edited take a long time to change !!
       if (this.$route.params.foodID !== undefined) {
         for (const sizePriceObject of this.form.sizePriceForm) {
-          // console.log(this.form.recipeID);
-          // console.log(sizePriceObject.sizeID);
-          // console.log(sizePriceObject.dataPrice);
-          // console.log(sizePriceObject.dataImage.imgFileName);
-          // console.log(sizePriceObject.dataImage.pic);
           await axios
             .put(`${BASE_LINK}/menu/${sizePriceObject.menuID}`, {
               recipeID: parseInt(this.form.recipeID),
@@ -247,9 +241,36 @@ export default {
             });
         }
       }
-
       console.log("FORM");
       console.log(this.form);
+
+      const defaultForm = {
+        recipeName: null,
+        recipeID: null,
+        recipeDescription: null,
+        image: {
+          imgURL: null,
+          imgFileName: null,
+          pic: null,
+        },
+        ingredientList: "",
+        sizePriceForm: [
+          {
+            menuID: null,
+            sizeID: null,
+            dataSize: null,
+            dataPrice: null,
+            dataImage: {
+              imgURL: null,
+              imgFileName: null,
+              pic: null,
+            },
+          },
+        ],
+      };
+      // // RESET Form
+      this.form = defaultForm;
+      this.sizePriceCount = 1;
     },
     readRecord(file) {
       return new Promise(function (resolve, reject) {

@@ -28,12 +28,40 @@
 import axios from "axios";
 export default {
   async fetch() {
+    // GET Base Link from Store
     const BASE_LINK = this.$store.getters.getBaseLink();
 
+    // CHECK If This is come from Edit Button or Not
+    if (this.$route.params.transactionID !== undefined) {
+      const transactionID = this.$route.params.transactionID;
+
+      let fetchTransactionData = await axios.get(
+        `${BASE_LINK}/transaction/${transactionID}`
+      );
+
+      // FETCH Transaction Detail and Set data to V Model in Order Card
+      fetchTransactionData = fetchTransactionData.data.data.transactionDetail;
+      for (const transactionDetail of fetchTransactionData) {
+        let tempOrderList = {};
+        tempOrderList["selectedRecipeID"] = transactionDetail.menu.recipeID;
+        tempOrderList["selectedRecipeName"] =
+          transactionDetail.menu.recipe.name;
+        tempOrderList["selectedMenuID"] = transactionDetail.menuID;
+        tempOrderList["selectedPrice"] = transactionDetail.menu.price;
+        tempOrderList["selectedSize"] = transactionDetail.menu.size.name;
+        tempOrderList["selectedQty"] = transactionDetail.qty;
+        tempOrderList["selectedImgFileName"] =
+          transactionDetail.menu.recipe.imgFileName;
+        tempOrderList["selectedSizeID"] = transactionDetail.menu.sizeID;
+        this.orderList.push(tempOrderList);
+      }
+    }
+
+    // GET Menu Option from API
     const fetchData = await axios.get(`${BASE_LINK}/recipe`);
     const tempMenuOption = [];
-    console.log("fetchData.data.data");
-    console.log(fetchData.data.data);
+
+    // CONSTRUCTS Menu Option
     for (const fetchObject of fetchData.data.data) {
       let tempData = {};
       tempData["ID"] = fetchObject.ID;
@@ -41,8 +69,9 @@ export default {
       tempData["imgFileName"] = fetchObject.imgFileName;
       tempMenuOption.push(tempData);
     }
+
+    // SAVE Menu Option
     this.menuOption = tempMenuOption;
-    // this.orderList[0].menuOption = this.initMenuOption;
   },
   data() {
     return {
@@ -100,21 +129,40 @@ export default {
       }
 
       // SEND Data to Backend
-      await axios
-        .post(`${BASE_LINK}/transaction`, {
-          transactionDetail: transactionList,
-        })
-        .then((res) => {
-          console.log("RESPONSE POST TRANSACTION");
-          console.log(res);
-          if (res.status === 200) {
-            alert("Success");
-          }
-        })
-        .catch((error) => {
-          console.log("ERROR");
-          console.log(error);
-        });
+      // IF Edit use PUT Method
+      if (this.$route.params.transactionID !== undefined) {
+        await axios
+          .put(`${BASE_LINK}/transaction/${this.$route.params.transactionID}`, {
+            transactionDetail: transactionList,
+          })
+          .then((res) => {
+            console.log("RESPONSE POST TRANSACTION");
+            console.log(res);
+            if (res.status === 200) {
+              alert("Success");
+            }
+          })
+          .catch((error) => {
+            console.log("ERROR");
+            console.log(error);
+          });
+      } else {
+        await axios
+          .post(`${BASE_LINK}/transaction`, {
+            transactionDetail: transactionList,
+          })
+          .then((res) => {
+            console.log("RESPONSE POST TRANSACTION");
+            console.log(res);
+            if (res.status === 200) {
+              alert("Success");
+            }
+          })
+          .catch((error) => {
+            console.log("ERROR");
+            console.log(error);
+          });
+      }
 
       // RESET Order Card
       this.onReset();
@@ -122,6 +170,7 @@ export default {
   },
   watch: {
     orderList: {
+      // WATCH Every Changes to OrderList and Add the Qty to SubTotal
       handler() {
         let subTotal = 0;
         for (const order of this.orderList) {
@@ -131,7 +180,6 @@ export default {
           }
         }
         this.subTotal = subTotal;
-        console.log(this.subTotal);
       },
       deep: true,
     },

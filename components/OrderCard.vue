@@ -100,7 +100,7 @@
         </div>
         <div class="row m-3">
           <div
-            class="col-3"
+            class="col-12"
             v-if="order.selectedPrice !== null && order.selectedQty !== null"
           >
             <h5>
@@ -112,9 +112,6 @@
                 )
               }}
             </h5>
-          </div>
-          <div class="col-3" v-else>
-            <h5></h5>
           </div>
         </div>
       </div>
@@ -132,6 +129,12 @@
 <script>
 import axios from "axios";
 export default {
+  async fetch() {
+    if (this.$route.params.transactionID !== undefined) {
+      // SAVE Size Option
+      this.fetchSize();
+    }
+  },
   data() {
     return {
       sizePreviewImage: null,
@@ -141,6 +144,32 @@ export default {
   },
   props: ["orderIndex", "order", "menuOption"],
   methods: {
+    async fetchSize() {
+      // GET Base Link from store
+      const BASE_LINK = this.$store.getters.getBaseLink();
+
+      // FETCH Data from backend to get sizeList
+      let fetchData = await axios.get(
+        `${BASE_LINK}/menurecipe/${this.$props.order.selectedRecipeID}`
+      );
+      fetchData = fetchData.data.data;
+
+      // GET Image URL to Props
+      this.$props.order.selectedImgFileName = fetchData.imgFileName;
+
+      // COMBINE Necessary Data
+      const tempListSizeObject = [];
+      for (const sizeObject of fetchData.sizeList) {
+        let tempSizeObject = {};
+        tempSizeObject["price"] = sizeObject.price;
+        tempSizeObject["size"] = sizeObject.size.name;
+        tempSizeObject["imgFileName"] = sizeObject.imgFileName;
+        tempSizeObject["sizeID"] = sizeObject.size.ID;
+        tempSizeObject["menuID"] = sizeObject.ID;
+        tempListSizeObject.push(tempSizeObject);
+      }
+      this.sizeOption = tempListSizeObject;
+    },
     async onMenuChange(event) {
       // Event Handler for Changing Menu Option
 
@@ -168,32 +197,8 @@ export default {
         )
         .getAttribute("data-menuOptionIndex");
 
-      // GET Base Link from store
-      const BASE_LINK = this.$store.getters.getBaseLink();
-
-      // FETCH Data from backend to get sizeList
-      let fetchData = await axios.get(
-        `${BASE_LINK}/menurecipe/${this.$props.order.selectedRecipeID}`
-      );
-      fetchData = fetchData.data.data;
-
-      // GET Image URL to Props
-      this.$props.order.selectedImgFileName = fetchData.imgFileName;
-
-      // COMBINE Necessary Data
-      const tempListSizeObject = [];
-      for (const sizeObject of fetchData.sizeList) {
-        let tempSizeObject = {};
-        tempSizeObject["price"] = sizeObject.price;
-        tempSizeObject["size"] = sizeObject.size.name;
-        tempSizeObject["imgFileName"] = sizeObject.imgFileName;
-        tempSizeObject["sizeID"] = sizeObject.size.ID;
-        tempSizeObject["menuID"] = sizeObject.ID;
-        tempListSizeObject.push(tempSizeObject);
-      }
-
-      // SAVE Size Option
-      this.sizeOption = tempListSizeObject;
+      // FETCH Size from API
+      this.fetchSize();
 
       // RESTART Preview Image when Choosing Size
       this.sizePreviewImage = null;

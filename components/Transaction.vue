@@ -12,7 +12,7 @@
           <div class="col-3">{{ transactionObject.timestamp }}</div>
           <div class="col-3">
             Rp.
-            {{ this.$store.getters.formatNumber(transactionObject.totalPrice) }}
+            {{ formatNumber(transactionObject.totalPrice) }}
           </div>
         </button>
       </h2>
@@ -38,24 +38,39 @@
               >
                 <td>{{ detailTransactionObject.menu.recipe.name }}</td>
                 <td>{{ detailTransactionObject.menu.size.name }}</td>
-                <td>Rp. {{ detailTransactionObject.menu.price }}</td>
+                <td>
+                  Rp. {{ formatNumber(detailTransactionObject.menu.price) }}
+                </td>
                 <td>{{ detailTransactionObject.qty }}</td>
                 <td>
                   Rp.
                   {{
-                    detailTransactionObject.menu.price *
-                    detailTransactionObject.qty
+                    formatNumber(
+                      detailTransactionObject.menu.price *
+                        detailTransactionObject.qty
+                    )
                   }}
                 </td>
               </tr>
               <tr>
                 <td class="labelTotalPriceCollapse">Total</td>
                 <td class="totalPriceCollapse" colspan="4">
-                  Rp. {{ transactionObject.totalPrice }}
+                  Rp. {{ formatNumber(transactionObject.totalPrice) }}
                 </td>
               </tr>
             </tbody>
           </table>
+          <button class="btn btn-success">
+            <nuxt-link
+              class="nav-link"
+              :to="{
+                name: 'order',
+                params: { transactionID: transactionObject.ID },
+              }"
+            >
+              Edit
+            </nuxt-link>
+          </button>
         </div>
       </div>
     </div>
@@ -65,7 +80,12 @@
 <script>
 export default {
   props: ["transactionObject"],
-  methods: {},
+  methods: {
+    formatNumber: (x) => {
+      // Function to Format Number to separate number with 3 digits
+      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    },
+  },
 };
 </script>
 

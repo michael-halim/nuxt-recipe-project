@@ -48,6 +48,7 @@ export default {
       transactionData: null,
     };
   },
+  methods: {},
 };
 </script>
 
