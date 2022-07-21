@@ -189,6 +189,23 @@ export default {
               console.log(error);
             });
         }
+
+        await axios
+            .put(`${BASE_LINK}/recipe/${this.form.recipeID}`, {
+              name: this.form.recipeName,
+              ingredient: this.form.ingredientList,
+              desc: this.form.recipeDescription,
+              imgFileName: this.form.image.imgFileName,
+              pic: this.form.image.pic,
+            })
+            .then((res) => {
+              console.log("RESPONSE UPDATE");
+              console.log(res);
+            })
+            .catch((error) => {
+              console.log("ERROR");
+              console.log(error);
+            });
       } else {
         // POST Request Size
         const sizeID = [];
