@@ -11,15 +11,22 @@
           @deleteOrderHandler="deleteOrderHandler"
         />
       </div>
-      <div class="mt-3" header="Form Data Result">
+
+      <!-- <div class="mt-3" header="Form Data Result">
         <pre class="m-0">{{ orderList }}</pre>
-      </div>
-      <div class="col-4 wrapperNewOrder">
-        <button class="btn btn-success mt-3" @click="addOrderHandler">
+      </div> -->
+
+      <SubTotalCard :subTotal="subTotal" @checkoutHandler="checkoutHandler" />
+    </div>
+    <div class="row mb-5">
+      <div class="col-5 offset-1">
+        <button
+          class="btn btn-success btn-lg mt-3 w-100"
+          @click="addOrderHandler"
+        >
           Add New
         </button>
       </div>
-      <SubTotalCard :subTotal="subTotal" @checkoutHandler="checkoutHandler" />
     </div>
   </div>
 </template>
@@ -76,8 +83,19 @@ export default {
   data() {
     return {
       menuOption: [],
-      orderCount: 0,
-      orderList: [],
+      orderCount: 1,
+      orderList: [
+        {
+          selectedRecipeID: null,
+          selectedRecipeName: null,
+          selectedMenuID: null,
+          selectedPrice: null,
+          selectedSize: null,
+          selectedQty: null,
+          selectedImgFileName: null,
+          selectedSizeID: null,
+        },
+      ],
       subTotal: 0,
     };
   },
@@ -105,17 +123,40 @@ export default {
       this.orderCount--;
       this.orderList.splice(orderIndex, 1);
     },
+    isNullish(obj) {
+      Object.values(obj).every((value) => {
+        if (value === null) {
+          return true;
+        }
+        return false;
+      });
+    },
     async checkoutHandler() {
       // GET Base Link
       const BASE_LINK = this.$store.getters.getBaseLink();
 
       // ADD Quantity of Duplicate Menu
       let dictTransaction = {};
+      let isExist = false;
       for (const order of this.orderList) {
-        if (dictTransaction[order.selectedMenuID]) {
-          dictTransaction[order.selectedMenuID] += parseInt(order.selectedQty);
-        } else {
-          dictTransaction[order.selectedMenuID] = parseInt(order.selectedQty);
+        if (
+          order.selectedRecipeID !== null &&
+          order.selectedRecipeName !== null &&
+          order.selectedMenuID !== null &&
+          order.selectedPrice !== null &&
+          order.selectedSize !== null &&
+          order.selectedQty !== null &&
+          order.selectedImgFileName !== null &&
+          order.selectedSizeID !== null
+        ) {
+          if (dictTransaction[order.selectedMenuID]) {
+            dictTransaction[order.selectedMenuID] += parseInt(
+              order.selectedQty
+            );
+          } else {
+            dictTransaction[order.selectedMenuID] = parseInt(order.selectedQty);
+          }
+          isExist = true;
         }
       }
 
@@ -128,44 +169,53 @@ export default {
         transactionList.push(tempTransaction);
       }
 
-      // SEND Data to Backend
-      // IF Edit use PUT Method
-      if (this.$route.params.transactionID !== undefined) {
-        await axios
-          .put(`${BASE_LINK}/transaction/${this.$route.params.transactionID}`, {
-            transactionDetail: transactionList,
-          })
-          .then((res) => {
-            console.log("RESPONSE POST TRANSACTION");
-            console.log(res);
-            if (res.status === 200) {
-              alert("Success");
-            }
-          })
-          .catch((error) => {
-            console.log("ERROR");
-            console.log(error);
-          });
-      } else {
-        await axios
-          .post(`${BASE_LINK}/transaction`, {
-            transactionDetail: transactionList,
-          })
-          .then((res) => {
-            console.log("RESPONSE POST TRANSACTION");
-            console.log(res);
-            if (res.status === 200) {
-              alert("Success");
-            }
-          })
-          .catch((error) => {
-            console.log("ERROR");
-            console.log(error);
-          });
-      }
+      // IF There's One or More Order
+      if (isExist) {
+        // SEND Data to Backend
+        // IF Edit use PUT Method
+        if (this.$route.params.transactionID !== undefined) {
+          await axios
+            .put(
+              `${BASE_LINK}/transaction/${this.$route.params.transactionID}`,
+              {
+                transactionDetail: transactionList,
+              }
+            )
+            .then((res) => {
+              console.log("RESPONSE POST TRANSACTION");
+              console.log(res);
+              if (res.status === 200) {
+                alert("Success");
+              }
+            })
+            .catch((error) => {
+              console.log("ERROR");
+              console.log(error);
+            });
+        } else {
+          await axios
+            .post(`${BASE_LINK}/transaction`, {
+              transactionDetail: transactionList,
+            })
+            .then((res) => {
+              console.log("RESPONSE POST TRANSACTION");
+              console.log(res);
+              if (res.status === 200) {
+                alert("Success");
+              }
+            })
+            .catch((error) => {
+              console.log("ERROR");
+              console.log(error);
+            });
+        }
 
-      // RESET Order Card
-      this.onReset();
+        // RESET Order Card
+        this.onReset();
+      } else {
+        // IF There Aren't Any Order
+        alert("You Have an Unfinished Selected Order");
+      }
     },
   },
   watch: {

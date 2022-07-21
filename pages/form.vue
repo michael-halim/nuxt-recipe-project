@@ -30,7 +30,12 @@
             </div>
           </div>
           <div class="col-2 mt-5">
-            <img class="previewImage" :src="form.image.imgURL" alt="" />
+            <img
+              v-if="form.image.imgURL !== null"
+              class="previewImage"
+              :src="form.image.imgURL"
+              alt=""
+            />
           </div>
         </div>
 
@@ -62,6 +67,7 @@
           :size="formObject"
           :formIndex="index"
           @sizePriceFormImageHandler="sizePriceFormImageHandler"
+          @deleteSizeHandler="deleteSizeHandler"
         />
 
         <!-- Label dan Ingredient Makanan -->
@@ -117,7 +123,9 @@ export default {
       for (const sizeObject of fetchObject.sizeList) {
         let tempSizePriceForm = {};
         tempSizePriceForm["dataSize"] = sizeObject.size.name;
-        tempSizePriceForm["dataPrice"] = sizeObject.price;
+        tempSizePriceForm["dataPrice"] = this.$store.getters.formatNumber(
+          sizeObject.price
+        );
         tempSizePriceForm["dataImage"] = {
           imgURL: sizeObject.imgFileName,
           imgFileName: null,
@@ -171,12 +179,13 @@ export default {
 
       // IF Edit Go Here Else It's Created
       if (this.$route.params.foodID !== undefined) {
+        // EDIT Menu and Size, Price, and Image
         for (const sizePriceObject of this.form.sizePriceForm) {
           await axios
             .put(`${BASE_LINK}/menu/${sizePriceObject.menuID}`, {
               recipeID: parseInt(this.form.recipeID),
               sizeID: parseInt(sizePriceObject.sizeID),
-              price: sizePriceObject.dataPrice,
+              price: parseInt(sizePriceObject.dataPrice.replace(/\./g, "")),
               imgFileName: sizePriceObject.dataImage.imgFileName,
               pic: sizePriceObject.dataImage.pic,
             })
@@ -190,22 +199,23 @@ export default {
             });
         }
 
+        // EDIT Recipe
         await axios
-            .put(`${BASE_LINK}/recipe/${this.form.recipeID}`, {
-              name: this.form.recipeName,
-              ingredient: this.form.ingredientList,
-              desc: this.form.recipeDescription,
-              imgFileName: this.form.image.imgFileName,
-              pic: this.form.image.pic,
-            })
-            .then((res) => {
-              console.log("RESPONSE UPDATE");
-              console.log(res);
-            })
-            .catch((error) => {
-              console.log("ERROR");
-              console.log(error);
-            });
+          .put(`${BASE_LINK}/recipe/${this.form.recipeID}`, {
+            name: this.form.recipeName,
+            ingredient: this.form.ingredientList,
+            desc: this.form.recipeDescription,
+            imgFileName: this.form.image.imgFileName,
+            pic: this.form.image.pic,
+          })
+          .then((res) => {
+            console.log("RESPONSE UPDATE");
+            console.log(res);
+          })
+          .catch((error) => {
+            console.log("ERROR");
+            console.log(error);
+          });
       } else {
         // POST Request Size
         const sizeID = [];
@@ -247,7 +257,9 @@ export default {
             .post(`${BASE_LINK}/menu`, {
               recipeID: recipeID,
               sizeID: parseInt(sizeID[i]),
-              price: parseInt(this.form.sizePriceForm[i].dataPrice),
+              price: parseInt(
+                this.form.sizePriceForm[i].dataPrice.replace(/\./g, "")
+              ),
               imgFileName: this.form.sizePriceForm[i].dataImage.imgFileName,
               pic: this.form.sizePriceForm[i].dataImage.pic,
             })
@@ -352,6 +364,10 @@ export default {
     },
     formatBase64(str) {
       return str.replace(/^data:image\/[a-z]+;base64,/, "");
+    },
+    deleteSizeHandler({ formIndex }) {
+      // alert(formIndex);
+      this.form.sizePriceForm.splice(formIndex, 1);
     },
     addSizePriceForm() {
       // ADD Dynamically Data, Price, and Image Form
